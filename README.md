@@ -1,30 +1,36 @@
 # MQTT Remote Scheduler 🕒 🔌
 
-A Python-based MQTT scheduling system that controls an Arduino relay based on predefined time schedules.
+A web-based MQTT scheduling system that controls an Arduino relay based on user-defined schedules through a modern web interface.
 
 ## Project Overview 🎯
 
-This project implements a remote relay control system using MQTT protocol, consisting of:
-- A Python publisher that sends scheduled ON/OFF commands
-- A Python subscriber that receives commands and forwards them to Arduino
-- An Arduino sketch that controls a physical relay
+This project implements a remote relay control system using MQTT protocol and WebSocket communication:
+- A web interface for setting ON/OFF times
+- A WebSocket server that forwards schedules to MQTT
+- A Python subscriber that receives schedules and controls Arduino
+- An Arduino sketch that controls a physical relay (LOW = ON, HIGH = OFF)
 
 ## Components 🔧
 
-### 1. Publisher (`publisher.py`) 📤
-- Sends scheduled ON/OFF commands via MQTT
-- Configurable scheduling times (currently set to 15:30 ON and 15:31 OFF)
-- Connects to MQTT broker for message publishing
+### 1. Web Interface 🌐
+- Modern, responsive design using Bootstrap
+- Real-time schedule updates via WebSocket
+- Simple time input fields for ON/OFF scheduling
 
-### 2. Subscriber (`subscriber.py`) 📥
-- Receives MQTT commands and forwards them to Arduino
+### 2. WebSocket Server (`websocket_server.py`) 🔄
+- Handles web client connections
+- Maintains schedule checking (every 3 seconds)
+- Publishes ON/OFF commands to MQTT at scheduled times
+
+### 3. MQTT Subscriber (`subscriber.py`) 📥
+- Receives commands from MQTT broker
 - Manages serial communication with Arduino
-- Handles message parsing and relay control
+- Provides detailed logging of all operations
 
-### 3. Arduino Controller (`arduino/relay.ino`) ⚡
+### 4. Arduino Controller (`arduino/relay.ino`) ⚡
 - Controls physical relay on pin 7
-- Receives commands via serial communication
-- Supports ON/OFF commands for relay control
+- LOW = Light ON, HIGH = Light OFF
+- Includes debug serial output
 
 ## Setup Requirements 📋
 
@@ -35,9 +41,12 @@ This project implements a remote relay control system using MQTT protocol, consi
 
 2. Software Dependencies 💻:
    - Python 3.x
-   - paho-mqtt library (`pip install paho-mqtt`)
-   - pyserial library (`pip install pyserial`)
+   - Required Python packages (install via `pip install -r requirements.txt`):
+     - paho-mqtt
+     - pyserial
+     - websockets
    - Arduino IDE for uploading the sketch
+   - Modern web browser
 
 ## Configuration ⚙️
 
@@ -50,20 +59,79 @@ This project implements a remote relay control system using MQTT protocol, consi
    - Default port: /dev/ttyACM0
    - Baud rate: 9600
 
+3. Web Interface:
+   - HTTP server: http://localhost:8000
+   - WebSocket server: ws://localhost:8765
+
 ## Usage 🚀
 
-1. Upload the Arduino sketch to your board
-2. Run the subscriber:
+1. Upload the Arduino sketch to your board:
+   ```bash
+   # Using Arduino IDE, upload arduino/relay.ino
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Start the WebSocket server:
+   ```bash
+   python websocket_server.py
+   ```
+
+4. Start the MQTT subscriber:
    ```bash
    python subscriber.py
    ```
-3. Run the publisher:
-   ```bash
-   python publisher.py
-   ```
 
-The system will automatically control the relay based on the configured schedule.
+5. Open http://localhost:8000 in your web browser
+6. Set your desired ON and OFF times and click Submit
+
+## Debug Output 🔍
+
+The system provides detailed logging at each step:
+
+1. WebSocket Server:
+   - Shows schedule reception and MQTT publishing
+   - Logs schedule checking every 3 seconds
+
+2. MQTT Subscriber:
+   - Shows connection status
+   - Logs command reception and forwarding
+   - Displays Arduino responses
+
+3. Arduino:
+   - Confirms command reception
+   - Shows relay state changes
+   - Reports current light status
+
+## Screenshots 📸
+
+Example Look of the Graphical Light Scheduler:
+[Screenshot showing the web interface with time inputs]
+
+## License 📄
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing 🤝
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Security Note 🔒
+
+The MQTT broker IP is hardcoded for demonstration purposes. In a production environment, consider:
+1. Using environment variables for sensitive configuration
+2. Implementing MQTT authentication
+3. Using TLS for MQTT and WebSocket connections
 
 ## Customization ✨
 
-To modify the schedule, edit the `ON_TIME` and `OFF_TIME` variables in `publisher.py`.
+- Modify the web interface design in `static/style.css`
+- Adjust schedule check frequency in `subscriber.py`
+- Configure MQTT topics and broker settings in both Python scripts
