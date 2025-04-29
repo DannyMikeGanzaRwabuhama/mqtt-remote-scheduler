@@ -109,7 +109,7 @@ The system provides detailed logging at each step:
 ## Screenshots 📸
 
 Example Look of the Graphical Light Scheduler:
-[Screenshot showing the web interface with time inputs]
+![Screenshot showing the web interface with time inputs](mqtt-remote-scheduler-screenshot.png)
 
 ## License 📄
 
